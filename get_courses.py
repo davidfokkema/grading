@@ -34,13 +34,6 @@ class BlackBoard(object):
             r, soup = self.requests.post(self.url,
                 data={'user_id': self.user_id, 'password': password})
 
-        # forwarded = soup.find('a', string=re.compile('forward'))
-        # if forwarded:
-        #     logging.debug("FORWARDED")
-        #     return self.open_page(forwarded['href'])
-        # else:
-        #     return r, soup
-
         return r, soup
 
     def is_login_page(self, soup):
