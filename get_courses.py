@@ -52,20 +52,16 @@ class BlackBoard(object):
 
 class Requests(object):
 
-    cookies = None
-
     def __init__(self):
         self.session = requests.Session()
 
     def get(self, url):
-        r = self.session.get(url, cookies=self.cookies)
-        if not self.cookies:
-            self.cookies = r.cookies
+        r = self.session.get(url)
         soup = bs4.BeautifulSoup(r.text, 'html.parser')
         return r, soup
 
     def post(self, url, data):
-        r = self.session.post(url, data, cookies=self.cookies)
+        r = self.session.post(url, data)
         soup = bs4.BeautifulSoup(r.text, 'html.parser')
         return r, soup
 
