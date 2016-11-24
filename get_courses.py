@@ -60,6 +60,5 @@ class Requests(object):
 
 
 if __name__ == '__main__':
-    if 'bb' not in globals():
-        bb = BlackBoard('https://bb.vu.nl', 'dfa210')
+    bb = BlackBoard('https://bb.vu.nl', 'dfa210')
     bb.get_courses()
