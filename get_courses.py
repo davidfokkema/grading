@@ -19,9 +19,8 @@ class BlackBoard(object):
 
     def get_courses(self):
         r, soup = self.open_page(self.url)
-        link_text = soup.find(string='Courses')
-        link = link_text.find_parent('a')['href']
-        r, soup = self.open_page(urljoin(self.url, link))
+        link = soup.find(title=re.compile('Open My Courses'))
+        r, soup = self.open_page(urljoin(self.url, link['href']))
         self.r, self.soup = r, soup
 
     def open_page(self, url):
