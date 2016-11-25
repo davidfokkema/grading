@@ -21,6 +21,9 @@ class BlackBoard(object):
         r, soup = self.open_page(self.url)
         link = soup.find(title=re.compile('Open My Courses'))
         r, soup = self.open_page(urljoin(self.url, link['href']))
+        for item in soup.find(class_='courseListing').find_all('li'):
+            if not item.find(string='(not currently available)'):
+                print list(item.stripped_strings)[0]
         self.r, self.soup = r, soup
 
     def open_page(self, url):
