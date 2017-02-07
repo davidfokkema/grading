@@ -34,7 +34,8 @@ class BlackBoard(object):
             logging.debug("POST %s (%s)" % (self.url, self.user_id))
             password = getpass.getpass()
             r, soup = self.requests.post(self.url,
-                data={'user_id': self.user_id, 'password': password})
+                                         data={'user_id': self.user_id,
+                                               'password': password})
 
         return r, soup
 
