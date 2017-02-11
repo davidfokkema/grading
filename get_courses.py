@@ -17,6 +17,8 @@ class BlackBoard(object):
 
     """
 
+    _courses_list_url = 'webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1&forwardUrl=detach_module%2F_4_1%2F'
+
     cookies = None
 
     def __init__(self, url, user_id):
@@ -35,9 +37,11 @@ class BlackBoard(object):
 
         courses = []
 
-        r, soup = self.open_page(self.url)
-        link = soup.find(title=re.compile('Open My Courses'))
-        r, soup = self.open_page(urljoin(self.url, link['href']))
+        # Make sure we are logged in since forwarding does not work very well
+        # with GET arguments
+        self.open_page(self.url)
+
+        r, soup = self.open_page(urljoin(self.url, self._courses_list_url))
         for item in soup.find(class_='courseListing').find_all('li'):
             if not item.find(string='(not currently available)'):
                 courses.append(list(item.stripped_strings)[0])
@@ -118,4 +122,7 @@ class Requests(object):
 
 if __name__ == '__main__':
     bb = BlackBoard('https://bb.vu.nl', 'dfa210')
-    bb.get_courses()
+    # bb = BlackBoard('https://blackboard.uva.nl/', 'dfokkem1')
+    courses = bb.get_courses()
+    for course in courses:
+        print course
