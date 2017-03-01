@@ -1,0 +1,9 @@
+<h1>Course list</h1>
+
+<ul>
+{% for course in object_list %}
+        <li>{{ course.title }} ({{ course.course_id }}, {{ course.account }})</li>
+{% empty %}
+        <li>No courses yet.</li>
+{% endfor %}
+</ul>
