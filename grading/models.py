@@ -1,7 +1,7 @@
 from django.db import models
 
-class Account(models.Model):
 
+class Account(models.Model):
     ACCOUNT_CHOICES = [('bb_uva', 'Blackboard UvA'),
                        ('bb_vu', 'Blackboard VU')]
 
@@ -17,6 +17,7 @@ class Course(models.Model):
     title = models.CharField(max_length=20)
     course_id = models.CharField(max_length=20)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
+
 
 class Student(models.Model):
     first_name = models.CharField(max_length=20)
