@@ -18,6 +18,7 @@ class BlackBoard(object):
     """
 
     _courses_list_url = 'webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1&forwardUrl=detach_module%2F_4_1%2F'
+    _student_list_url = 'webapps/blackboard/execute/userManager?course_id=%s&showAll=true'
 
     cookies = None
 
@@ -47,6 +48,29 @@ class BlackBoard(object):
             if not item.find(string='(not currently available)'):
                 courses.append(list(item.stripped_strings)[0])
         return courses
+
+    def get_student_list(self, course_id):
+        """Get a list of students."""
+
+        students = []
+
+        r, soup = self.open_page(urljoin(self.url,
+                                         self._student_list_url % course_id))
+        users_table = soup.find(id='listContainer_datatable')
+        users = users_table.find('tbody').find_all('tr')
+        for user in users:
+            fields = [field.text.lstrip() for field in user.find_all('td')]
+            _, first_name, last_name, email, role, _, _ = fields
+            print(role)
+            if role == 'Student':
+                student_id = user.find(class_='profileCardAvatarThumb')
+                student_id = student_id.text.lstrip().rstrip()
+
+                students.append({'first_name': first_name,
+                                 'last_name': last_name,
+                                 'email': email,
+                                 'student_id': student_id})
+        return students
 
     def open_page(self, url):
         """Open the requested page, logging in if necessary.
@@ -123,8 +147,10 @@ class Requests(object):
 
 
 if __name__ == '__main__':
-    bb = BlackBoard('https://bb.vu.nl', 'dfa210')
-    # bb = BlackBoard('https://blackboard.uva.nl/', 'dfokkem1')
+    # bb = BlackBoard('https://bb.vu.nl', 'dfa210')
+    bb = BlackBoard('https://blackboard.uva.nl/', 'dfokkem1')
     courses = bb.get_courses()
     for course in courses:
         print(course)
+
+    students = bb.get_student_list('_209763_1')
