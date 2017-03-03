@@ -2,7 +2,7 @@ import getpass
 import requests
 import bs4
 import re
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -21,7 +21,7 @@ class BlackBoard(object):
 
     cookies = None
 
-    def __init__(self, url, user_id):
+    def __init__(self, url, user_id, password=None):
         """Initialize class.
 
         :param url: the url of the BlackBoard installation
@@ -31,6 +31,7 @@ class BlackBoard(object):
         self.url = url
         self.user_id = user_id
         self.requests = Requests()
+        self._password = password
 
     def get_courses(self):
         """Get a list of courses."""
@@ -64,10 +65,11 @@ class BlackBoard(object):
 
         while self.is_login_page(soup):
             logging.debug("POST %s (%s)" % (self.url, self.user_id))
-            password = getpass.getpass()
+            if not self._password:
+                self._password = getpass.getpass()
             r, soup = self.requests.post(self.url,
                                          data={'user_id': self.user_id,
-                                               'password': password})
+                                               'password': self._password})
 
         return r, soup
 
@@ -125,4 +127,4 @@ if __name__ == '__main__':
     # bb = BlackBoard('https://blackboard.uva.nl/', 'dfokkem1')
     courses = bb.get_courses()
     for course in courses:
-        print course
+        print(course)
