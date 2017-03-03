@@ -2,7 +2,7 @@
 
 <ul>
 {% for course in object_list %}
-        <li>{{ course.title }} ({{ course.course_id }}, {{ course.account }})</li>
+        <li><a href="{% url 'course' course.pk %}">{{ course.title }} ({{ course.course_id }}, {{ course.account }})</a></li>
 {% empty %}
         <li>No courses yet.</li>
 {% endfor %}
