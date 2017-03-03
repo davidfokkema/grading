@@ -54,6 +54,10 @@ class BlackBoard(object):
 
         students = []
 
+        # Make sure we are logged in since forwarding does not work very well
+        # with GET arguments
+        self.open_page(self.url)
+
         r, soup = self.open_page(urljoin(self.url,
                                          self._student_list_url % course_id))
         users_table = soup.find(id='listContainer_datatable')
