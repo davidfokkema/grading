@@ -63,13 +63,9 @@ class BlackBoard(object):
         users_table = soup.find(id='listContainer_datatable')
         users = users_table.find('tbody').find_all('tr')
         for user in users:
-            fields = [field.text.lstrip() for field in user.find_all('td')]
-            _, first_name, last_name, email, role, _, _ = fields
-            print(role)
+            fields = list(user.stripped_strings)[:6]
+            student_id, _, first_name, last_name, email, role = fields
             if role == 'Student':
-                student_id = user.find(class_='profileCardAvatarThumb')
-                student_id = student_id.text.lstrip().rstrip()
-
                 students.append({'first_name': first_name,
                                  'last_name': last_name,
                                  'email': email,
