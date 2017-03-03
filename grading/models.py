@@ -21,7 +21,7 @@ class Account(models.Model):
 
 
 class Course(models.Model):
-    title = models.CharField(max_length=20)
+    title = models.CharField(max_length=80)
     course_id = models.CharField(max_length=20)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
 
