@@ -5,7 +5,7 @@ import re
 from urllib.parse import urljoin
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 class BlackBoard(object):
@@ -46,7 +46,9 @@ class BlackBoard(object):
         r, soup = self.open_page(urljoin(self.url, self._courses_list_url))
         for item in soup.find(class_='courseListing').find_all('li'):
             if not item.find(string='(not currently available)'):
-                courses.append(list(item.stripped_strings)[0])
+                course_id = re.search('id=([_0-9]+)', item.a['href']).group(1)
+                title = item.a.text
+                courses.append({'title': title, 'course_id': course_id})
         return courses
 
     def get_student_list(self, course_id):
@@ -150,7 +152,4 @@ if __name__ == '__main__':
     # bb = BlackBoard('https://bb.vu.nl', 'dfa210')
     bb = BlackBoard('https://blackboard.uva.nl/', 'dfokkem1')
     courses = bb.get_courses()
-    for course in courses:
-        print(course)
-
     students = bb.get_student_list('_209763_1')
