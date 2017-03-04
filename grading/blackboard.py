@@ -8,6 +8,11 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 
+class AuthError(Exception):
+    """Authentication Error."""
+    pass
+
+
 class BlackBoard(object):
 
     """Connect to BlackBoard.
@@ -91,6 +96,8 @@ class BlackBoard(object):
 
         while self.is_login_page(soup):
             logging.debug("POST %s (%s)" % (self.url, self.user_id))
+            if soup.find(string=re.compile('password.*incorrect')):
+                raise AuthError("Incorrect username or password")
             if not self._password:
                 self._password = getpass.getpass()
             r, soup = self.requests.post(self.url,
