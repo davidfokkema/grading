@@ -3,8 +3,8 @@ from django.db import models
 
 class Account(models.Model):
     ACCOUNT_TYPES = [
-        ('bb_uva', 'Blackboard UvA', 'http://blackboard.uva.nl'),
-        ('bb_vu', 'Blackboard VU', 'http://bb.vu.nl/')]
+        ('bb_uva', 'Blackboard UvA', 'https://blackboard.uva.nl'),
+        ('bb_vu', 'Blackboard VU', 'https://bb.vu.nl/')]
     ACCOUNT_CHOICES = [(u[0], u[1]) for u in ACCOUNT_TYPES]
     URLS = {u[0]: u[2] for u in ACCOUNT_TYPES}
 
