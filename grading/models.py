@@ -25,10 +25,16 @@ class Course(models.Model):
     course_id = models.CharField(max_length=20)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return '%s (%s)' % (self.title, self.account)
+
 
 class Assignment(models.Model):
     title = models.CharField(max_length=40)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '%s (%s)' % (self.title, self.course)
 
 
 class Student(models.Model):
@@ -37,3 +43,6 @@ class Student(models.Model):
     last_name = models.CharField(max_length=40)
     student_id = models.IntegerField()
     courses = models.ManyToManyField(Course)
+
+    def __str__(self):
+        return ' '.join([self.first_name, self.prefix, self.last_name])
