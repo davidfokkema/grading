@@ -1,1 +1,17 @@
+<html>
+<body>
 <h1>{{ course.title }}</h1>
+
+<h2>Assignments</h2>
+
+<h2>Students</h2>
+<ol>
+{% for student in course.student_set.all %}
+        <li>{{ student.student_id }} - {{ student.first_name }} {{ student.last_name }}</li>
+{% endfor %}
+</ol>
+
+<a href="{% url 'refresh_students' course.pk %}">Refresh student list</a>
+
+</body>
+</html>

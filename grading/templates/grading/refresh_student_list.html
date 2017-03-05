@@ -1,0 +1,12 @@
+<html>
+<body>
+<h1><a href="{% url 'course' course.pk %}">{{ course.title }}</a></h1>
+List of students:
+<ol>
+{% for student in students %}
+        <li>{{ student.student_id }} - {{ student.first_name }} {{ student.last_name }} ({{ student.status }})</li>
+{% endfor %}
+</ol>
+
+</body>
+</html>

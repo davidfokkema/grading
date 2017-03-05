@@ -26,9 +26,14 @@ class Course(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
 
 
+class Assignment(models.Model):
+    title = models.CharField(max_length=40)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+
+
 class Student(models.Model):
     first_name = models.CharField(max_length=20)
     prefix = models.CharField(max_length=20)
     last_name = models.CharField(max_length=40)
     student_id = models.IntegerField()
-    course = models.ManyToManyField(Course)
+    courses = models.ManyToManyField(Course)
