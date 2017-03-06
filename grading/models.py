@@ -48,10 +48,11 @@ class Assignment(models.Model):
 
 class Student(models.Model):
     first_name = models.CharField(max_length=20)
-    prefix = models.CharField(max_length=20)
+    prefix = models.CharField(max_length=20, blank=True)
     last_name = models.CharField(max_length=40)
     student_id = models.IntegerField()
-    courses = models.ManyToManyField(Course)
+    email = models.EmailField()
+    courses = models.ManyToManyField(Course, blank=True)
 
     def __str__(self):
         return ' '.join([self.first_name, self.prefix, self.last_name])

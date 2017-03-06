@@ -32,7 +32,8 @@ def refresh_student_list(request, course_id):
             student['status'] = 'new'
             s = Student(first_name=student['first_name'],
                         last_name=student['last_name'],
-                        student_id=student['student_id'])
+                        student_id=student['student_id'],
+                        email=student['email'])
             s.save()
 
         if course in s.courses.all():
