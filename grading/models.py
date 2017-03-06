@@ -30,11 +30,20 @@ class Course(models.Model):
 
 
 class Assignment(models.Model):
+    ASSIGNMENT_CHOICES = [
+        ('verslag', "Verslag"),
+        ('expvaardigheden', "Experimentele vaardigheden"),
+    ]
+
     title = models.CharField(max_length=40)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    assignment_type = models.CharField(max_length=20,
+                                       choices=ASSIGNMENT_CHOICES)
 
     def __str__(self):
-        return '%s - %s' % (self.title, self.course)
+        return '%s (%s) - %s' % (self.title,
+                                 self.get_assignment_type_display(),
+                                 self.course)
 
 
 class Student(models.Model):
@@ -46,3 +55,13 @@ class Student(models.Model):
 
     def __str__(self):
         return ' '.join([self.first_name, self.prefix, self.last_name])
+
+
+class Report(models.Model):
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    report = models.FileField()
+    assessment = models.FileField()
+
+    def __str__(self):
+        return '%s - %s' % (self.assignment, self.student)

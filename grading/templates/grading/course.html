@@ -3,6 +3,11 @@
 <h1>{{ course.title }}</h1>
 
 <h2>Assignments</h2>
+<ol>
+{% for assignment in course.assignment_set.all %}
+        <li>{{ assignment.title }} ({{ assignment.assignment_type}})</li>
+{% endfor %}
+</ol>
 
 <h2>Students</h2>
 <ol>
