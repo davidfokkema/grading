@@ -1,7 +1,8 @@
 from django.shortcuts import get_object_or_404, render
 from django.views import generic
 
-from .models import Course, Account, Student
+from .models import Course, Account, Student, Assignment
+from .forms import UploadReportForm
 from .blackboard import BlackBoard
 
 
@@ -13,6 +14,20 @@ class IndexView(generic.ListView):
 class CourseView(generic.DetailView):
     model = Course
     template_name = 'grading/course.html'
+
+
+class UploadReportView(generic.edit.FormView):
+    template_name = 'grading/report_assignment.html'
+    form_class = UploadReportForm
+    success_url = '/thanks/'
+
+    def get_context_data(self, **kwargs):
+        context = super(UploadReportView, self).get_context_data(**kwargs)
+        context['assignment'] = Assignment.objects.get(pk=self.kwargs['pk'])
+        return context
+
+    def form_valid(self, form):
+        return super(UploadReportView, self).form_valid(form)
 
 
 def refresh_student_list(request, course_id):
@@ -45,3 +60,17 @@ def refresh_student_list(request, course_id):
 
     return render(request, 'grading/refresh_student_list.html',
                   {'course': course, 'students': students})
+
+
+# def upload_report(request, assignment_id):
+#     assignment = Assignment.objects.get(pk=assignment_id)
+#
+#     if request.method == 'POST':
+#         form = UploadReportForm(request.POST, request.FILES)
+#         print(request.FILES)
+#         if form.is_valid():
+#             return HttpResponseRedirect('/success/url/')
+#     else:
+#         form = UploadReportForm()
+#     return render(request, 'grading/report_assignment.html',
+#                   {'assignment': assignment, 'form': form})

@@ -5,7 +5,11 @@
 <h2>Assignments</h2>
 <ol>
 {% for assignment in course.assignment_set.all %}
+        {% if assignment.assignment_type == 'verslag' %}
+        <li><a href="{% url 'report_assignment' assignment.pk %}">{{ assignment.title }} ({{ assignment.assignment_type}})</a></li>
+        {% else %}
         <li>{{ assignment.title }} ({{ assignment.assignment_type}})</li>
+        {% endif %}
 {% endfor %}
 </ol>
 
