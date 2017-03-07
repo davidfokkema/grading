@@ -1,7 +1,8 @@
 from django.shortcuts import get_object_or_404, render
 from django.views import generic
+from django.urls import reverse
 
-from .models import Course, Account, Student, Assignment
+from .models import Course, Student, Assignment
 from .forms import UploadReportForm
 from .blackboard import BlackBoard
 
@@ -16,10 +17,14 @@ class CourseView(generic.DetailView):
     template_name = 'grading/course.html'
 
 
+class ReportView(generic.DetailView):
+    model = Assignment
+    template_name = 'grading/report.html'
+
+
 class UploadReportView(generic.edit.FormView):
-    template_name = 'grading/report_assignment.html'
+    template_name = 'grading/upload_reports.html'
     form_class = UploadReportForm
-    success_url = '/thanks/'
 
     def get_context_data(self, **kwargs):
         context = super(UploadReportView, self).get_context_data(**kwargs)
@@ -27,6 +32,10 @@ class UploadReportView(generic.edit.FormView):
         return context
 
     def form_valid(self, form):
+        # provide a valid success_url, JIT-style because we need to have
+        # self.kwargs defined
+        self.success_url = reverse('report_assignment',
+                                   kwargs={'pk': self.kwargs['pk']})
         return super(UploadReportView, self).form_valid(form)
 
 
@@ -66,8 +75,7 @@ def refresh_student_list(request, course_id):
 #     assignment = Assignment.objects.get(pk=assignment_id)
 #
 #     if request.method == 'POST':
-#         form = UploadReportForm(request.POST, request.FILES)
-#         print(request.FILES)
+#         form = UploadReportForm(request.POST, request.FILES))
 #         if form.is_valid():
 #             return HttpResponseRedirect('/success/url/')
 #     else:

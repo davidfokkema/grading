@@ -1,0 +1,7 @@
+<html>
+<body>
+<h1>{{ assignment.title }} - {{ assignment.course.title }}</h1>
+
+<a href="{% url 'upload_reports' assignment.pk %}">Upload reports</a>
+</body>
+</html>
