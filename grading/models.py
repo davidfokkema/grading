@@ -61,7 +61,7 @@ class Student(models.Model):
 class Report(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    mark = models.IntegerField()
+    mark = models.IntegerField(blank=True, null=True)
     report = models.FileField()
     assessment = models.FileField()
 

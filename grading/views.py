@@ -1,10 +1,16 @@
+import logging
+
 from django.shortcuts import get_object_or_404, render
 from django.views import generic
 from django.urls import reverse
 
-from .models import Course, Student, Assignment
+from .models import Course, Student, Assignment, Report
 from .forms import UploadReportForm
 from .blackboard import BlackBoard
+from . import utils
+
+
+logger = logging.getLogger('django')
 
 
 class IndexView(generic.ListView):
@@ -32,12 +38,28 @@ class UploadReportView(generic.edit.FormView):
         return context
 
     def post(self, request, *args, **kwargs):
+        assignment_id = self.kwargs['pk']
+        assignment = Assignment.objects.get(pk=assignment_id)
+
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         files = request.FILES.getlist('reports')
+
         if form.is_valid():
             for f in files:
-                print(f.name)
+                try:
+                    student = utils.get_student_from_filename(f.name)
+                    try:
+                        report = Report.objects.get(assignment=assignment,
+                                                    student=student)
+                    except Report.DoesNotExist:
+                        report = Report(assignment=assignment, student=student)
+                    report.report = f
+                    report.save()
+                except utils.IdentificationError:
+                    # FIXME: should handle identification errors
+                    logger.warning("Unknown student: %s (assignment %s)" %
+                                   (f.name, assignment_id))
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
