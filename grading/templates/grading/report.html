@@ -2,6 +2,20 @@
 <body>
 <h1>{{ assignment.title }} - {{ assignment.course.title }}</h1>
 
+<h2>Students with reports</h2>
+<ol>
+{% for student in students_with_reports %}
+        <li>{{ student }}</li>
+{% endfor %}
+</ol>
+
+<h2>Students without reports</h2>
+<ol>
+{% for student in students_without_reports %}
+        <li>{{ student }}</li>
+{% endfor %}
+</ol>
+
 <a href="{% url 'upload_reports' assignment.pk %}">Upload reports</a>
 </body>
 </html>

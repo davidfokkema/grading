@@ -27,6 +27,20 @@ class ReportView(generic.DetailView):
     model = Assignment
     template_name = 'grading/report.html'
 
+    def get_context_data(self, **kwargs):
+        assignment = Assignment.objects.get(pk=self.kwargs['pk'])
+        reports = Report.objects.filter(assignment=assignment)
+        all_students = set(Student.objects.filter(courses=assignment.course))
+
+        students_with_reports = {u.student for u in reports}
+        students_without_reports = all_students - students_with_reports
+        print(students_with_reports)
+
+        context = super(ReportView, self).get_context_data(**kwargs)
+        context['students_with_reports'] = students_with_reports
+        context['students_without_reports'] = students_without_reports
+        return context
+
 
 class UploadReportView(generic.edit.FormView):
     template_name = 'grading/upload_reports.html'
