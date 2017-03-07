@@ -31,6 +31,17 @@ class UploadReportView(generic.edit.FormView):
         context['assignment'] = Assignment.objects.get(pk=self.kwargs['pk'])
         return context
 
+    def post(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        files = request.FILES.getlist('reports')
+        if form.is_valid():
+            for f in files:
+                print(f.name)
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
     def form_valid(self, form):
         # provide a valid success_url, JIT-style because we need to have
         # self.kwargs defined
