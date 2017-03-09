@@ -47,16 +47,23 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
+
+def get_drive_service():
+    """Get a Google Drive API service object."""
+
+    credentials = get_credentials()
+    http = credentials.authorize(httplib2.Http())
+    service = discovery.build('drive', 'v3', http=http)
+    return service
+
+
 def main():
     """Shows basic usage of the Google Drive API.
 
     Creates a Google Drive API service object and outputs the names and IDs
     for up to 10 files.
     """
-    credentials = get_credentials()
-    http = credentials.authorize(httplib2.Http())
-    service = discovery.build('drive', 'v3', http=http)
-
+    service = get_drive_service()
     results = service.files().list(
         pageSize=10,fields="nextPageToken, files(id, name)").execute()
     items = results.get('files', [])
