@@ -3,6 +3,7 @@ import logging
 from django.shortcuts import get_object_or_404, render
 from django.views import generic
 from django.urls import reverse
+from django.http import HttpResponseRedirect
 
 from .models import Course, Student, Assignment, Report
 from .forms import UploadReportForm
@@ -41,23 +42,12 @@ class ReportView(generic.DetailView):
         return context
 
 
-class UploadReportView(generic.edit.FormView):
-    template_name = 'grading/upload_reports.html'
-    form_class = UploadReportForm
+def upload_report_view(request, assignment_id):
+    assignment = Assignment.objects.get(pk=assignment_id)
 
-    def get_context_data(self, **kwargs):
-        context = super(UploadReportView, self).get_context_data(**kwargs)
-        context['assignment'] = Assignment.objects.get(pk=self.kwargs['pk'])
-        return context
-
-    def post(self, request, *args, **kwargs):
-        assignment_id = self.kwargs['pk']
-        assignment = Assignment.objects.get(pk=assignment_id)
-
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
+    if request.method == 'POST':
+        form = UploadReportForm(request.POST, request.FILES)
         files = request.FILES.getlist('reports')
-
         if form.is_valid():
             for f in files:
                 try:
@@ -73,16 +63,14 @@ class UploadReportView(generic.edit.FormView):
                     # FIXME: should handle identification errors
                     logger.warning("Unknown student: %s (assignment %s)" %
                                    (f.name, assignment_id))
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
+            success_url = reverse('report_assignment',
+                                  kwargs={'pk': assignment_id})
+            return HttpResponseRedirect(success_url)
+    else:
+        form = UploadReportForm()
 
-    def form_valid(self, form):
-        # provide a valid success_url, JIT-style because we need to have
-        # self.kwargs defined
-        self.success_url = reverse('report_assignment',
-                                   kwargs={'pk': self.kwargs['pk']})
-        return super(UploadReportView, self).form_valid(form)
+    return render(request, 'grading/upload_reports.html',
+                  {'assignment': assignment, 'form': form})
 
 
 def refresh_student_list(request, course_id):
@@ -115,16 +103,3 @@ def refresh_student_list(request, course_id):
 
     return render(request, 'grading/refresh_student_list.html',
                   {'course': course, 'students': students})
-
-
-# def upload_report(request, assignment_id):
-#     assignment = Assignment.objects.get(pk=assignment_id)
-#
-#     if request.method == 'POST':
-#         form = UploadReportForm(request.POST, request.FILES))
-#         if form.is_valid():
-#             return HttpResponseRedirect('/success/url/')
-#     else:
-#         form = UploadReportForm()
-#     return render(request, 'grading/report_assignment.html',
-#                   {'assignment': assignment, 'form': form})
