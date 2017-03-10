@@ -51,6 +51,7 @@ def upload_report_view(request, assignment_id):
         if form.is_valid():
             added, updated, unknown = [], [], []
             for f in files:
+                logger.info("Processing file %s" % f)
                 try:
                     student = utils.get_student_from_filename(f.name)
                     try:
