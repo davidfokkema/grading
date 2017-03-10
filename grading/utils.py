@@ -1,6 +1,7 @@
 import re
 
 from .models import Student
+from . import google_sheets
 
 
 class IdentificationError(Exception):
@@ -32,3 +33,25 @@ def get_student_from_filename(filename):
         pass
 
     raise IdentificationError("Cannot find student.")
+
+
+def get_student_from_name(name):
+    name_parts = name.split(' ')
+    try:
+        return Student.objects.get(first_name__icontains=name_parts[0],
+                                   last_name__icontains=name_parts[-1])
+    except Student.DoesNotExist:
+        raise IdentificationError("Cannot find student.")
+
+
+def get_sheets_from_url(url):
+    service = google_sheets.get_sheets_service()
+    sheet_id = get_sheet_id_from_url(url)
+    sheet = service.spreadsheets().get(spreadsheetId=sheet_id).execute()
+    return sheet['sheets']
+
+
+def get_sheet_id_from_url(url):
+    pattern = 'https://docs.google.com/spreadsheets/d/([0-9a-zA-Z_-]+)/'
+    match = re.match(pattern, url)
+    return match.group(1)

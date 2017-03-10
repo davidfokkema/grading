@@ -95,6 +95,18 @@ def upload_report_assessment_view(request, assignment_id):
         form = UploadReportAssessmentForm(request.POST)
         if form.is_valid():
             added, updated, unknown = [], [], []
+            url = form.cleaned_data['url']
+            for sheet in utils.get_sheets_from_url(url):
+                name = sheet['properties']['title']
+                try:
+                    student = utils.get_student_from_name(name)
+                except utils.IdentificationError:
+                    unknown.append(name)
+                else:
+                    gid = sheet['properties']['sheetId']
+                    print(student, gid)
+                    # pdf = utils.get_pdf_from_sheet_url(url, gid)
+                    added.append(student)
             return render(request, 'grading/upload_reports_status.html',
                           {'assignment': assignment,
                            'added': added,
