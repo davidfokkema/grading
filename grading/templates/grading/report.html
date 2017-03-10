@@ -11,13 +11,17 @@
                 </tr>
         </thead>
         <tbody>
-                {% for student in students %}
+        {% for student in students %}
                 <tr>
                         <td>{{ student.name }}</td>
-                        <td>{{ student.has_report }}</td>
+                {% if student.has_report %}
+                        <td><a href="{{ student.report_url }}">Verslag</a></td>
+                {% else %}
+                        <td>X</td>
+                {% endif %}
                         <td>{{ student.has_assessment }}</td>
                 </tr>
-                {% endfor %}
+        {% endfor %}
 </table>
 
 <p><a href="{% url 'upload_reports' assignment.pk %}">Upload reports</a></p>

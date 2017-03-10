@@ -36,9 +36,18 @@ class ReportView(generic.DetailView):
 
         students = []
         for student in all_students:
-            students.append({'name': str(student), 'has_report': False,
-                             'has_assessment': False})
-
+            info = {'name': str(student), 'has_report': False,
+                    'has_assessment': False}
+            try:
+                report = Report.objects.get(assignment=assignment,
+                                            student=student)
+            except Report.DoesNotExist:
+                pass
+            else:
+                if report.report:
+                    info['has_report'] = True
+                    info['report_url'] = report.report.url
+            students.append(info)
         context['students'] = students
         return context
 
@@ -51,6 +60,7 @@ def upload_report_view(request, assignment_id):
         files = request.FILES.getlist('reports')
         if form.is_valid():
             added, updated, unknown = [], [], []
+            logger.info("FILES %d: %s" % (len(files), '\t'.join([str(u) for u in files])))
             for f in files:
                 logger.info("Processing file %s" % f)
                 try:
