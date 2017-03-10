@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect
 
 from .models import Course, Student, Assignment, Report
-from .forms import UploadReportForm
+from .forms import UploadReportForm, UploadReportAssessmentForm
 from .blackboard import BlackBoard
 from . import utils
 
@@ -85,6 +85,25 @@ def upload_report_view(request, assignment_id):
         form = UploadReportForm()
 
     return render(request, 'grading/upload_reports.html',
+                  {'assignment': assignment, 'form': form})
+
+
+def upload_report_assessment_view(request, assignment_id):
+    assignment = Assignment.objects.get(pk=assignment_id)
+
+    if request.method == 'POST':
+        form = UploadReportAssessmentForm(request.POST)
+        if form.is_valid():
+            added, updated, unknown = [], [], []
+            return render(request, 'grading/upload_reports_status.html',
+                          {'assignment': assignment,
+                           'added': added,
+                           'updated': updated,
+                           'unknown': unknown})
+    else:
+        form = UploadReportAssessmentForm()
+
+    return render(request, 'grading/upload_report_assessments.html',
                   {'assignment': assignment, 'form': form})
 
 

@@ -10,5 +10,7 @@ urlpatterns = [
     url(r'^(?P<course_id>[0-9]+)/refresh/students/$',
         views.refresh_student_list, name='refresh_students'),
     url(r'^upload/reports/(?P<assignment_id>[0-9]+)/$',
-        views.upload_report_view, name='upload_reports')
+        views.upload_report_view, name='upload_reports'),
+    url(r'^upload/report_assessments/(?P<assignment_id>[0-9]+)/$',
+        views.upload_report_assessment_view, name='upload_report_assessments'),
 ]
