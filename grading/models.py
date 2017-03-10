@@ -65,5 +65,8 @@ class Report(models.Model):
     report = models.FileField()
     assessment = models.FileField()
 
+    class Meta:
+        unique_together = ('assignment', 'student')
+
     def __str__(self):
         return '%s - %s' % (self.assignment, self.student)
