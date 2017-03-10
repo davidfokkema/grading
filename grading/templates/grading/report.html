@@ -2,20 +2,24 @@
 <body>
 <h1>{{ assignment.title }} - {{ assignment.course.title }}</h1>
 
-<h2>Students with reports</h2>
-<ol>
-{% for student in students_with_reports %}
-        <li>{{ student }}</li>
-{% endfor %}
-</ol>
+<table>
+        <thead>
+                <tr>
+                        <th>Name</th>
+                        <th>Report</th>
+                        <th>Assessment</th>
+                </tr>
+        </thead>
+        <tbody>
+                {% for student in students %}
+                <tr>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.has_report }}</td>
+                        <td>{{ student.has_assessment }}</td>
+                </tr>
+                {% endfor %}
+</table>
 
-<h2>Students without reports</h2>
-<ol>
-{% for student in students_without_reports %}
-        <li>{{ student }}</li>
-{% endfor %}
-</ol>
-
-<a href="{% url 'upload_reports' assignment.pk %}">Upload reports</a>
+<p><a href="{% url 'upload_reports' assignment.pk %}">Upload reports</a></p>
 </body>
 </html>

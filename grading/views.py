@@ -29,16 +29,17 @@ class ReportView(generic.DetailView):
     template_name = 'grading/report.html'
 
     def get_context_data(self, **kwargs):
-        assignment = Assignment.objects.get(pk=self.kwargs['pk'])
-        reports = Report.objects.filter(assignment=assignment)
-        all_students = set(Student.objects.filter(courses=assignment.course))
-
-        students_with_reports = {u.student for u in reports}
-        students_without_reports = all_students - students_with_reports
-
         context = super(ReportView, self).get_context_data(**kwargs)
-        context['students_with_reports'] = students_with_reports
-        context['students_without_reports'] = students_without_reports
+
+        assignment = Assignment.objects.get(pk=self.kwargs['pk'])
+        all_students = Student.objects.filter(courses=assignment.course)
+
+        students = []
+        for student in all_students:
+            students.append({'name': str(student), 'has_report': False,
+                             'has_assessment': False})
+
+        context['students'] = students
         return context
 
 
