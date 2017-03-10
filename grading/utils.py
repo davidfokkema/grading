@@ -25,7 +25,6 @@ def get_student_from_filename(filename):
     match = re.search('([a-zA-Z_]{5,})', filename)
     name = match.group(1).strip('_')
     name_parts = name.split('_')
-    print(name)
     try:
         return Student.objects.get(first_name__icontains=name_parts[0],
                                    last_name__icontains=name_parts[-1])
