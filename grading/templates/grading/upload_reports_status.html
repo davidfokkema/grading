@@ -1,0 +1,29 @@
+<html>
+<body>
+<h1>{{ assignment.title }} - {{ assignment.course.title }}</h1>
+
+<h2>Reports added</h2>
+<ol>
+{% for student in added %}
+        <li>{{ student }}</li>
+{% endfor %}
+</ol>
+
+<h2>Reports updated</h2>
+<ol>
+{% for student in updated %}
+        <li>{{ student }}</li>
+{% endfor %}
+</ol>
+
+<h2>Reports unidentified</h2>
+<ol>
+{% for name in unknown %}
+        <li>{{ name }}</li>
+{% endfor %}
+</ol>
+
+<p><a href="{% url 'report_assignment' assignment.pk %}">Return to assignment</a></p>
+<p><a href="{% url 'upload_reports' assignment.pk %}">Upload more reports</a></p>
+</body>
+</html>

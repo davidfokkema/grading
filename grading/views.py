@@ -49,23 +49,26 @@ def upload_report_view(request, assignment_id):
         form = UploadReportForm(request.POST, request.FILES)
         files = request.FILES.getlist('reports')
         if form.is_valid():
+            added, updated, unknown = [], [], []
             for f in files:
                 try:
                     student = utils.get_student_from_filename(f.name)
                     try:
                         report = Report.objects.get(assignment=assignment,
                                                     student=student)
+                        updated.append(student)
                     except Report.DoesNotExist:
                         report = Report(assignment=assignment, student=student)
+                        added.append(student)
                     report.report = f
                     report.save()
                 except utils.IdentificationError:
-                    # FIXME: should handle identification errors
-                    logger.warning("Unknown student: %s (assignment %s)" %
-                                   (f.name, assignment_id))
-            success_url = reverse('report_assignment',
-                                  kwargs={'pk': assignment_id})
-            return HttpResponseRedirect(success_url)
+                    unknown.append(f.name)
+            return render(request, 'grading/upload_reports_status.html',
+                          {'assignment': assignment,
+                           'added': added,
+                           'updated': updated,
+                           'unknown': unknown})
     else:
         form = UploadReportForm()
 
