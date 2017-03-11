@@ -2,12 +2,13 @@ import argparse
 import os
 
 import django
+from django.core.files.base import ContentFile
 
 os.environ["DJANGO_SETTINGS_MODULE"] = 'mysite.settings'
 django.setup()
 
 from grading import utils
-from grading.models import Report
+from grading.models import Report, Assignment
 
 
 if __name__ == '__main__':
@@ -19,7 +20,7 @@ if __name__ == '__main__':
 
     added, updated, unknown = [], [], []
     url = args.url
-    assignment_id = args.assignment_id
+    assignment = Assignment.objects.get(pk=args.assignment_id)
     sheets = utils.get_sheets_from_url(url)
     for sheet in sheets:
         name = sheet['properties']['title']
@@ -32,11 +33,13 @@ if __name__ == '__main__':
             pdf = utils.get_pdf_from_sheet_url(
                 url, sheet['properties']['sheetId'])
             try:
-                report = Report.objects.get(assignment__pk=assignment_id,
+                report = Report.objects.get(assignment=assignment,
                                             student=student)
                 updated.append(student)
             except Report.DoesNotExist:
                 report = Report(assignment=assignment, student=student)
                 added.append(student)
-            report.assessment = pdf
+            filename = "Checklist %s %s.pdf" % (assignment.title, student)
+            report.assessment.save(filename, ContentFile(pdf))
             report.save()
+            print(filename)
