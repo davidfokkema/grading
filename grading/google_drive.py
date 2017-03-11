@@ -6,11 +6,11 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
-try:
-    import argparse
-    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-except ImportError:
-    flags = None
+# try:
+#     import argparse
+#     flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
+# except ImportError:
+flags = None
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/drive-python-quickstart.json
@@ -48,11 +48,15 @@ def get_credentials():
     return credentials
 
 
-def get_drive_service():
-    """Get a Google Drive API service object."""
-
+def get_authorized_http():
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
+    return http
+
+
+def get_drive_service():
+    """Get a Google Drive API service object."""
+    http = get_authorized_http()
     service = discovery.build('drive', 'v3', http=http)
     return service
 
