@@ -48,11 +48,15 @@ def get_credentials():
     return credentials
 
 
-def get_sheets_service():
-    """Get a Google Sheets API service object."""
-
+def get_authorized_http():
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
+    return http
+
+
+def get_sheets_service():
+    """Get a Google Sheets API service object."""
+    http = get_authorized_http()
     discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
                     'version=v4')
     service = discovery.build('sheets', 'v4', http=http,

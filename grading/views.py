@@ -105,7 +105,7 @@ def upload_report_assessment_view(request, assignment_id):
                 else:
                     gid = sheet['properties']['sheetId']
                     print(student, gid)
-                    # pdf = utils.get_pdf_from_sheet_url(url, gid)
+                    pdf = utils.get_pdf_from_sheet_url(url, gid)
                     added.append(student)
             return render(request, 'grading/upload_reports_status.html',
                           {'assignment': assignment,

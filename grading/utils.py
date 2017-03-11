@@ -1,4 +1,5 @@
 import re
+from urllib.parse import urlencode
 
 from .models import Student
 from . import google_sheets
@@ -55,3 +56,13 @@ def get_sheet_id_from_url(url):
     pattern = 'https://docs.google.com/spreadsheets/d/([0-9a-zA-Z_-]+)/'
     match = re.match(pattern, url)
     return match.group(1)
+
+
+def get_pdf_from_sheet_url(url, gid):
+    # strip off everything after the last slash
+    url = re.match('.*/', url).group(0)
+    params = urlencode({'format': 'pdf', 'portrait': 'false', 'gid': gid})
+    export_url = url + '?' + params
+    http = google_sheets.get_authorized_http()
+    pdf = http.request(url)
+    return pdf
