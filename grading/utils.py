@@ -58,7 +58,8 @@ def get_sheet_id_from_url(url):
     return match.group(1)
 
 
-def get_pdf_from_sheet_url(url, gid):
+def get_pdf_from_sheet_url(url, sheet):
+    gid = sheet['properties']['sheetId']
     # strip off everything after the last slash
     url = re.match('.*/', url).group(0)
     params = urlencode({'format': 'pdf', 'portrait': 'false', 'gid': gid})
@@ -66,3 +67,18 @@ def get_pdf_from_sheet_url(url, gid):
     http = google_drive.get_authorized_http()
     response, content = http.request(export_url)
     return content
+
+
+def get_value_from_sheet_url(url, sheet, cell):
+    sheet_id = get_sheet_id_from_url(url)
+    name = sheet['properties']['title']
+    service = google_sheets.get_sheets_service()
+    value = service.spreadsheets().values().get(
+        spreadsheetId=sheet_id, range=name + '!' + cell).execute()
+    return value['values'][0][0]
+
+
+def get_mark_from_sheet_url(url, sheet, cell):
+    value = get_value_from_sheet_url(url, sheet, cell)
+    mark = float(value.replace(',', '.'))
+    return mark

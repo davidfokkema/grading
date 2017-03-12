@@ -29,9 +29,7 @@ if __name__ == '__main__':
         except utils.IdentificationError:
             unknown.append(name)
         else:
-            print(student)
-            pdf = utils.get_pdf_from_sheet_url(
-                url, sheet['properties']['sheetId'])
+            pdf = utils.get_pdf_from_sheet_url(url, sheet)
             try:
                 report = Report.objects.get(assignment=assignment,
                                             student=student)
@@ -41,5 +39,7 @@ if __name__ == '__main__':
                 added.append(student)
             filename = "Checklist %s %s.pdf" % (assignment.title, student)
             report.assessment.save(filename, ContentFile(pdf))
+            mark = utils.get_mark_from_sheet_url(url, sheet, 'E17')
+            print(mark)
+            report.mark = mark
             report.save()
-            print(filename)
