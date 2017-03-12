@@ -40,6 +40,6 @@ if __name__ == '__main__':
             filename = "Checklist %s %s.pdf" % (assignment.title, student)
             report.assessment.save(filename, ContentFile(pdf))
             mark = utils.get_mark_from_sheet_url(url, sheet, 'E17')
-            print(mark)
+            print(student, mark)
             report.mark = mark
             report.save()
