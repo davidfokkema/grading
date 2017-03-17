@@ -37,7 +37,8 @@ class ReportView(generic.DetailView):
         students = []
         for student in all_students:
             info = {'name': str(student), 'has_report': False,
-                    'has_assessment': False, 'mark': None}
+                    'has_assessment': False, 'mark': None,
+                    'mail_is_sent': False}
             try:
                 report = Report.objects.get(assignment=assignment,
                                             student=student)
@@ -50,6 +51,8 @@ class ReportView(generic.DetailView):
                 if report.assessment:
                     info['has_assessment'] = True
                     info['assessment_url'] = report.assessment.url
+                if report.mail_is_sent:
+                    info['mail_is_sent'] = True
                 info['mark'] = report.mark
             students.append(info)
         context['students'] = students

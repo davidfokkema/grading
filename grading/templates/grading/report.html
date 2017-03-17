@@ -9,6 +9,7 @@
                         <th>Report</th>
                         <th>Assessment</th>
                         <th>Mark</th>
+                        <th>Sent</th>
                 </tr>
         </thead>
         <tbody>
@@ -29,6 +30,11 @@
                         <td>{{ student.mark }}</td>
                 {% else %}
                         <td>-</td>
+                {% endif %}
+                {% if student.mail_is_sent %}
+                        <td>Yes</td>
+                {% else %}
+                        <td>No</td>
                 {% endif %}
                 </tr>
         {% endfor %}

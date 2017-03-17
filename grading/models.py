@@ -39,6 +39,7 @@ class Assignment(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     assignment_type = models.CharField(max_length=20,
                                        choices=ASSIGNMENT_CHOICES)
+    mail_text = models.TextField()
 
     def __str__(self):
         return '%s (%s) - %s' % (self.title,
@@ -65,6 +66,7 @@ class Report(models.Model):
                                null=True)
     report = models.FileField()
     assessment = models.FileField()
+    mail_is_sent = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('assignment', 'student')
