@@ -1,2 +1,16 @@
 ---
 - hosts: all
+  tasks:
+  - name: ensure local source directory privileges are correct
+    file: path=/usr/local/src state=directory
+          owner=root group=adm mode=775
+    become: true
+
+  - name: download miniconda installer
+    get_url: url=http://repo.continuum.io/miniconda/Miniconda3-4.3.11-Linux-x86_64.sh
+             dest=/usr/local/src/Miniconda3-4.3.11-Linux-x86_64.sh
+
+  - name: install miniconda
+    command: creates=/opt/miniconda
+             /bin/bash /usr/local/src/Miniconda3-4.3.11-Linux-x86_64.sh -b -p /opt/miniconda
+    become: true
