@@ -53,7 +53,7 @@
     notify: restart web server
 
   - name: create django media folder
-    file: path=/srv/grading/media state=directory
+    file: path=/srv/grading/www/media state=directory
 
 
   handlers:
