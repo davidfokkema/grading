@@ -1,5 +1,6 @@
 ---
 - hosts: all
+  force_handlers: True
   tasks:
   - name: ensure local source directory privileges are correct
     file: path=/usr/local/src state=directory
@@ -27,4 +28,8 @@
   - name: checkout publicdb in /srv/grading/www
     git: repo=/vagrant dest=/srv/grading/www
          update=yes force=no
-    # notify: restart webserver
+    notify: restart webserver
+
+  handlers:
+  - name: restart webserver
+    shell: /bin/true
