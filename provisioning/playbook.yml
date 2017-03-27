@@ -8,12 +8,12 @@
     become: true
 
   - name: download miniconda installer
-    get_url: url=http://repo.continuum.io/miniconda/Miniconda3-4.3.11-Linux-x86_64.sh
-             dest=/usr/local/src/Miniconda3-4.3.11-Linux-x86_64.sh
+    get_url: url=http://repo.continuum.io/miniconda/Miniconda3-4.2.12-Linux-x86_64.sh
+             dest=/usr/local/src/Miniconda3-4.2.12-Linux-x86_64.sh
 
   - name: install miniconda
     command: creates=/opt/miniconda
-             /bin/bash /usr/local/src/Miniconda3-4.3.11-Linux-x86_64.sh -b -p /opt/miniconda
+             /bin/bash /usr/local/src/Miniconda3-4.2.12-Linux-x86_64.sh -b -p /opt/miniconda
     become: true
 
   - name: ensure /srv directory exists
@@ -22,14 +22,45 @@
 
   - name: ensure /srv/grading directory exists
     file: path=/srv/grading state=directory
-          owner={{ ansible_user }} group={{ ansible_user }} mode=2775
+          owner={{ ansible_user }} group={{ ansible_user }}
     become: true
 
-  - name: checkout publicdb in /srv/grading/www
-    git: repo=/vagrant dest=/srv/grading/www
-         update=yes force=no
-    notify: restart webserver
+  - name: create conda environment
+    shell: creates=/srv/grading/grading_env
+           yes | /opt/miniconda/bin/conda create
+           -p /srv/grading/grading_env python --yes
+
+  - name: Copy conda requirements files
+    copy: src=conda.list dest=/home/{{ ansible_user }}/
+
+  - name: Copy pip requirements files
+    copy: src=pip.list dest=/home/{{ ansible_user }}/
+
+  - name: install conda packages in conda environment
+    command: /opt/miniconda/bin/conda install -p /srv/grading/grading_env
+             --file /home/{{ ansible_user }}/conda.list --yes
+    register: result
+    changed_when: "'already installed' not in result.stdout"
+
+  - name: install packages in conda environment using pip
+    command: /srv/grading/grading_env/bin/pip install
+             -r /home/{{ ansible_user }}/pip.list
+    register: result
+    changed_when: "'Successfully installed' in result.stdout"
+
+  - name: checkout grading in /srv/grading/www
+    git: repo=/vagrant dest=/srv/grading/www update=yes force=no
+    notify: restart web server
+
+  - name: create django media folder
+    file: path=/srv/grading/media state=directory
+
 
   handlers:
-  - name: restart webserver
+  - name: Apply Django schema migrations
+    shell: chdir=/srv/grading/www
+      /srv/grading/grading_env/bin/python manage.py migrate
+    listen: restart web server
+
+  - name: restart web server
     shell: /bin/true
