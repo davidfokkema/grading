@@ -2,6 +2,24 @@
 - hosts: all
   force_handlers: True
   tasks:
+  - name: install aptitude (necessary for apt module upgrade)
+    apt: name=aptitude state=present
+    become: true
+
+  - name: install (security) updates
+    apt: upgrade=yes
+    become: true
+
+  - name: install supervisor
+    apt: name=supervisor state=present
+    become: true
+
+  - name: give supervisorctl rights to {{ ansible_user }}
+    template: src=supervisord.conf dest=/etc/supervisor/supervisord.conf
+      backup=yes
+    become: true
+    notify: restart supervisord
+
   - name: ensure local source directory privileges are correct
     file: path=/usr/local/src state=directory
           owner=root group=adm mode=775
@@ -30,10 +48,10 @@
            yes | /opt/miniconda/bin/conda create
            -p /srv/grading/grading_env python --yes
 
-  - name: Copy conda requirements files
+  - name: copy conda requirements files
     copy: src=conda.list dest=/home/{{ ansible_user }}/
 
-  - name: Copy pip requirements files
+  - name: copy pip requirements files
     copy: src=pip.list dest=/home/{{ ansible_user }}/
 
   - name: install conda packages in conda environment
@@ -55,12 +73,25 @@
   - name: create django media folder
     file: path=/srv/grading/www/media state=directory
 
+  - name: copy uwsgi-supervisord.conf
+    copy: src=uwsgi-supervisord.conf dest=/etc/supervisor/conf.d/uwsgi.conf
+          backup=yes owner=root group=root mode=0644
+    become: true
+
+  - name: copy uwsgi.ini
+    copy: src=uwsgi.ini dest=/srv/grading/www/uwsgi.ini backup=yes
+    notify: restart web server
+
 
   handlers:
+  - name: restart supervisord
+    service: name=supervisor state=restarted
+    become: true
+
   - name: Apply Django schema migrations
     shell: chdir=/srv/grading/www
       /srv/grading/grading_env/bin/python manage.py migrate
     listen: restart web server
 
   - name: restart web server
-    shell: /bin/true
+    supervisorctl: name=uwsgi state=restarted
