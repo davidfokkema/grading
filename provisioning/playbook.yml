@@ -79,7 +79,7 @@
     become: true
 
   - name: copy uwsgi.ini
-    copy: src=uwsgi.ini dest=/srv/grading/www/uwsgi.ini backup=yes
+    template: src=uwsgi.ini dest=/srv/grading/www/uwsgi.ini backup=yes
     notify: restart web server
 
 
