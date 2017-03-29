@@ -43,6 +43,9 @@
           owner={{ ansible_user }} group={{ ansible_user }}
     become: true
 
+  - name: create django static folder
+    file: path=/srv/grading/static state=directory
+
   - name: create conda environment
     shell: creates=/srv/grading/grading_env
            yes | /opt/miniconda/bin/conda create
@@ -91,6 +94,11 @@
   - name: Apply Django schema migrations
     shell: chdir=/srv/grading/www
       /srv/grading/grading_env/bin/python manage.py migrate
+    listen: restart web server
+
+  - name: collect static files of Django apps
+    shell: chdir=/srv/grading/www
+      /srv/grading/grading_env/bin/python manage.py collectstatic --no-input
     listen: restart web server
 
   - name: restart web server
