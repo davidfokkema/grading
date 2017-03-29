@@ -1,0 +1,105 @@
+---
+- hosts: all
+  force_handlers: True
+  tasks:
+  - name: install aptitude (necessary for apt module upgrade)
+    apt: name=aptitude state=present
+    become: true
+
+  - name: install (security) updates
+    apt: upgrade=yes
+    become: true
+
+  - name: install supervisor
+    apt: name=supervisor state=present
+    become: true
+
+  - name: give supervisorctl rights to {{ ansible_user }}
+    template: src=supervisord.conf dest=/etc/supervisor/supervisord.conf
+      backup=yes
+    become: true
+    notify: restart supervisord
+
+  - name: ensure local source directory privileges are correct
+    file: path=/usr/local/src state=directory
+          owner=root group=adm mode=775
+    become: true
+
+  - name: download miniconda installer
+    get_url: url=http://repo.continuum.io/miniconda/Miniconda3-4.2.12-Linux-x86_64.sh
+             dest=/usr/local/src/Miniconda3-4.2.12-Linux-x86_64.sh
+
+  - name: install miniconda
+    command: creates=/opt/miniconda
+             /bin/bash /usr/local/src/Miniconda3-4.2.12-Linux-x86_64.sh -b -p /opt/miniconda
+    become: true
+
+  - name: ensure /srv directory exists
+    file: path=/srv state=directory
+    become: true
+
+  - name: ensure /srv/grading directory exists
+    file: path=/srv/grading state=directory
+          owner={{ ansible_user }} group={{ ansible_user }}
+    become: true
+
+  - name: create django static folder
+    file: path=/srv/grading/static state=directory
+
+  - name: create conda environment
+    shell: creates=/srv/grading/grading_env
+           yes | /opt/miniconda/bin/conda create
+           -p /srv/grading/grading_env python --yes
+
+  - name: copy conda requirements files
+    copy: src=conda.list dest=/home/{{ ansible_user }}/
+
+  - name: copy pip requirements files
+    copy: src=pip.list dest=/home/{{ ansible_user }}/
+
+  - name: install conda packages in conda environment
+    command: /opt/miniconda/bin/conda install -p /srv/grading/grading_env
+             --file /home/{{ ansible_user }}/conda.list --yes
+    register: result
+    changed_when: "'already installed' not in result.stdout"
+
+  - name: install packages in conda environment using pip
+    command: /srv/grading/grading_env/bin/pip install
+             -r /home/{{ ansible_user }}/pip.list
+    register: result
+    changed_when: "'Successfully installed' in result.stdout"
+
+  - name: checkout grading in /srv/grading/www
+    git: repo=/vagrant dest=/srv/grading/www update=yes force=no
+    notify: restart web server
+
+  - name: create django media folder
+    file: path=/srv/grading/www/media state=directory
+
+  - name: copy uwsgi-supervisord.conf
+    copy: src=uwsgi-supervisord.conf dest=/etc/supervisor/conf.d/uwsgi.conf
+          backup=yes owner=root group=root mode=0644
+    become: true
+
+  - name: copy uwsgi.ini
+    template: src=uwsgi.ini dest=/srv/grading/www/uwsgi.ini backup=yes
+    notify: restart web server
+
+
+  handlers:
+  - name: restart supervisord
+    service: name=supervisor state=restarted
+    become: true
+
+  - name: Apply Django schema migrations
+    shell: chdir=/srv/grading/www
+      /srv/grading/grading_env/bin/python manage.py migrate
+    listen: restart web server
+
+  - name: collect static files of Django apps
+    shell: chdir=/srv/grading/www
+      /srv/grading/grading_env/bin/python manage.py collectstatic --no-input
+    listen: restart web server
+
+  - name: restart web server
+    supervisorctl: name=uwsgi state=restarted
