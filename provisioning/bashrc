@@ -1,0 +1,18 @@
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+# User specific aliases and functions
+
+# Activate env
+alias envgrad='source activate /srv/grading/grading_env'
+# Go to grading repository
+alias cdgrad='cd /srv/grading/www'
+# Collect static files, and reload uwsgi
+alias collectreload='envgrad && cdgrad && cd django_grading && ./manage.py collectstatic --noinput && touch /tmp/uwsgi-reload.me'
+
+# Prompt
+[[ -n "$SSH_CLIENT" ]] && PS1='\[\e[1;30m\]$(date +%y%m%d\ %H:%M:%S) \[\e[1;32m\]\u@\h \[\e[1;34m\]\w\n$CONDA_DEFAULT_ENV\[\e[m\]> '
