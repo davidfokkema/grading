@@ -1,5 +1,6 @@
 import argparse
 import os
+import time
 
 import django
 from django.core.files.base import ContentFile
@@ -29,7 +30,13 @@ if __name__ == '__main__':
         except utils.IdentificationError:
             unknown.append(name)
         else:
-            pdf = utils.get_pdf_from_sheet_url(url, sheet)
+            while True:
+                pdf = utils.get_pdf_from_sheet_url(url, sheet)
+                if b'%PDF' in pdf[:4]:
+                    break
+                else:
+                    print("Error retrieving PDF, retrying...")
+                    time.sleep(5)
             try:
                 report = Report.objects.get(assignment=assignment,
                                             student=student)
