@@ -5,7 +5,7 @@ from django.views import generic
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 
-from .models import Course, Student, Assignment, Report
+from .models import Course, Student, Assignment, Report, Skills
 from .forms import UploadReportForm, UploadReportAssessmentForm
 from .blackboard import BlackBoard
 from . import utils
@@ -54,6 +54,37 @@ class ReportView(generic.DetailView):
                 if report.mail_is_sent:
                     info['mail_is_sent'] = True
                 info['mark'] = report.mark
+            students.append(info)
+        context['students'] = students
+        return context
+
+
+class SkillsView(generic.DetailView):
+    model = Assignment
+    template_name = 'grading/skills.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SkillsView, self).get_context_data(**kwargs)
+
+        assignment = Assignment.objects.get(pk=self.kwargs['pk'])
+        all_students = Student.objects.filter(courses=assignment.course)
+
+        students = []
+        for student in all_students:
+            info = {'name': str(student), 'has_assessment': False,
+                    'mark': None, 'mail_is_sent': False}
+            try:
+                skills = Skills.objects.get(assignment=assignment,
+                                            student=student)
+            except Skills.DoesNotExist:
+                pass
+            else:
+                if skills.assessment:
+                    info['has_assessment'] = True
+                    info['assessment_url'] = skills.assessment.url
+                if skills.mail_is_sent:
+                    info['mail_is_sent'] = True
+                info['mark'] = skills.mark
             students.append(info)
         context['students'] = students
         return context
