@@ -74,3 +74,18 @@ class Report(models.Model):
 
     def __str__(self):
         return '%s - %s' % (self.assignment, self.student)
+
+
+class Skills(models.Model):
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    mark = models.DecimalField(max_digits=2, decimal_places=1, blank=True,
+                               null=True)
+    assessment = models.FileField()
+    mail_is_sent = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('assignment', 'student')
+
+    def __str__(self):
+        return '%s - %s' % (self.assignment, self.student)
