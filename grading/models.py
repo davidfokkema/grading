@@ -39,8 +39,8 @@ class Assignment(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     assignment_type = models.CharField(max_length=20,
                                        choices=ASSIGNMENT_CHOICES)
-    mail_subject = models.CharField(max_length=100)
-    mail_body = models.TextField()
+    mail_subject = models.CharField(max_length=100, blank=True, null=True)
+    mail_body = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return '%s (%s) - %s' % (self.title,
