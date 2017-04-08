@@ -50,3 +50,7 @@ if __name__ == '__main__':
             print(student, mark)
             report.mark = mark
             report.save()
+
+    print("Added students:", added)
+    print("Updated students:", updated)
+    print("Unknown students:", unknown)
