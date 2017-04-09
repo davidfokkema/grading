@@ -1,6 +1,6 @@
 <html>
 <body>
-<h1>{{ assignment.title }} - {{ assignment.course.title }}</h1>
+<h1>{{ assignment.title }} - <a href="{% url 'course' assignment.course.pk %}">{{ assignment.course.title }}</a></h1>
 
 <table>
         <thead>
