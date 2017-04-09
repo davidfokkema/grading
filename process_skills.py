@@ -31,7 +31,7 @@ if __name__ == '__main__':
             unknown.append(name)
         else:
             while True:
-                pdf = utils.get_pdf_from_sheet_url(url, sheet)
+                pdf = utils.get_pdf_from_sheet_url(url, sheet, portrait=True)
                 if b'%PDF' in pdf[:4]:
                     break
                 else:
