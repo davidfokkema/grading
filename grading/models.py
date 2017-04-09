@@ -63,7 +63,7 @@ class Student(models.Model):
 class Report(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    mark = models.DecimalField(max_digits=2, decimal_places=1, blank=True,
+    mark = models.DecimalField(max_digits=3, decimal_places=1, blank=True,
                                null=True)
     report = models.FileField()
     assessment = models.FileField()
@@ -79,7 +79,7 @@ class Report(models.Model):
 class Skills(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    mark = models.DecimalField(max_digits=2, decimal_places=1, blank=True,
+    mark = models.DecimalField(max_digits=3, decimal_places=1, blank=True,
                                null=True)
     assessment = models.FileField()
     mail_is_sent = models.BooleanField(default=False)
