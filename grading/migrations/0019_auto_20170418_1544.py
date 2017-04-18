@@ -9,10 +9,11 @@ import django.db.models.deletion
 def enroll_students(apps, schema_editor):
     Student = apps.get_model('grading', 'Student')
     Course = apps.get_model('grading', 'Course')
+    Enrollment = apps.get_model('grading', 'Enrollment')
     for course in Course.objects.all():
-        for student in Student.objects.filter(course=course):
-            course.students.add(student)
-        course.save()
+        for student in Student.objects.filter(courses=course):
+            enroll = Enrollment(student=student, course=course)
+            enroll.save()
 
 
 class Migration(migrations.Migration):
