@@ -5,7 +5,7 @@ from django.views import generic
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 
-from .models import Course, Student, Assignment, Report, Skills
+from .models import Course, Student, Assignment, Report, Skills, Enrollment
 from .forms import UploadReportForm, UploadReportAssessmentForm
 from .blackboard import BlackBoard
 from . import utils
@@ -32,7 +32,7 @@ class ReportView(generic.DetailView):
         context = super(ReportView, self).get_context_data(**kwargs)
 
         assignment = Assignment.objects.get(pk=self.kwargs['pk'])
-        all_students = Student.objects.filter(courses=assignment.course)
+        all_students = assignment.course.students.all()
 
         students = []
         for student in all_students:
@@ -67,7 +67,7 @@ class SkillsView(generic.DetailView):
         context = super(SkillsView, self).get_context_data(**kwargs)
 
         assignment = Assignment.objects.get(pk=self.kwargs['pk'])
-        all_students = Student.objects.filter(courses=assignment.course)
+        all_students = Student.objects.filter(course=assignment.course)
 
         students = []
         for student in all_students:
@@ -178,11 +178,12 @@ def refresh_student_list(request, course_id):
                         email=student['email'])
             s.save()
 
-        if course in s.courses.all():
+        if course in s.course_set.all():
             student['status'] += '- already registered'
         else:
-            s.courses.add(course)
+            enroll = Enrollment(student=s, course=course)
             s.save()
+            enroll.save()
             student['status'] += '- now registered'
 
     return render(request, 'grading/refresh_student_list.html',

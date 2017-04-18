@@ -17,7 +17,7 @@
 
 <h2>Students</h2>
 <ol>
-{% for student in course.student_set.all %}
+{% for student in course.students.all %}
         <li>{{ student.student_id }} - {{ student.first_name }} {{ student.last_name }}</li>
 {% endfor %}
 </ol>
