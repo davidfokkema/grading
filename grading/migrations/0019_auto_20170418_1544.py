@@ -6,6 +6,15 @@ from django.db import migrations, models
 import django.db.models.deletion
 
 
+def enroll_students(apps, schema_editor):
+    Student = apps.get_model('grading', 'Student')
+    Course = apps.get_model('grading', 'Course')
+    for course in Course.objects.all():
+        for student in Student.objects.filter(course=course):
+            course.students.add(student)
+        course.save()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -21,10 +30,6 @@ class Migration(migrations.Migration):
                 ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='grading.Course')),
             ],
         ),
-        migrations.RemoveField(
-            model_name='student',
-            name='courses',
-        ),
         migrations.AddField(
             model_name='enrollment',
             name='student',
@@ -34,5 +39,10 @@ class Migration(migrations.Migration):
             model_name='course',
             name='students',
             field=models.ManyToManyField(through='grading.Enrollment', to='grading.Student'),
+        ),
+        migrations.RunPython(enroll_students),
+        migrations.RemoveField(
+            model_name='student',
+            name='courses',
         ),
     ]
