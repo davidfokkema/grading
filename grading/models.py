@@ -38,7 +38,7 @@ class Course(models.Model):
     students = models.ManyToManyField(Student, through='Enrollment')
 
     def __str__(self):
-        return '%s (%s)' % (self.title, self.account)
+        return '%s' % self.title
 
 
 class Enrollment(models.Model):
@@ -46,6 +46,9 @@ class Enrollment(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     final_mark = models.DecimalField(
         max_digits=3, decimal_places=1, blank=True, null=True)
+
+    def __str__(self):
+        return '%s - %s' % (self.course, self.student)
 
 
 class Assignment(models.Model):
