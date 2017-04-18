@@ -20,13 +20,32 @@ class Account(models.Model):
         return '%s - %s' % (self.get_account_type_display(), self.user)
 
 
+class Student(models.Model):
+    first_name = models.CharField(max_length=20)
+    prefix = models.CharField(max_length=20, blank=True)
+    last_name = models.CharField(max_length=40)
+    student_id = models.IntegerField()
+    email = models.EmailField()
+
+    def __str__(self):
+        return ' '.join([self.first_name, self.prefix, self.last_name])
+
+
 class Course(models.Model):
     title = models.CharField(max_length=80)
     course_id = models.CharField(max_length=20)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    students = models.ManyToManyField(Student, through='Enrollment')
 
     def __str__(self):
         return '%s (%s)' % (self.title, self.account)
+
+
+class Enrollment(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    final_mark = models.DecimalField(
+        max_digits=3, decimal_places=1, blank=True, null=True)
 
 
 class Assignment(models.Model):
@@ -46,18 +65,6 @@ class Assignment(models.Model):
         return '%s (%s) - %s' % (self.title,
                                  self.get_assignment_type_display(),
                                  self.course)
-
-
-class Student(models.Model):
-    first_name = models.CharField(max_length=20)
-    prefix = models.CharField(max_length=20, blank=True)
-    last_name = models.CharField(max_length=40)
-    student_id = models.IntegerField()
-    email = models.EmailField()
-    courses = models.ManyToManyField(Course, blank=True)
-
-    def __str__(self):
-        return ' '.join([self.first_name, self.prefix, self.last_name])
 
 
 class Report(models.Model):
