@@ -57,7 +57,7 @@ class Assignment(models.Model):
         ('expvaardigheden', "Experimentele vaardigheden"),
     ]
 
-    title = models.CharField(max_length=40)
+    title = models.CharField(max_length=80)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     assignment_type = models.CharField(max_length=20,
                                        choices=ASSIGNMENT_CHOICES)
