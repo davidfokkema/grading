@@ -44,6 +44,7 @@ class Course(models.Model):
 class Enrollment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
     final_mark = models.DecimalField(
         max_digits=3, decimal_places=1, blank=True, null=True)
 
