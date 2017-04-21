@@ -6,6 +6,7 @@ from .models import Account, Course, Student, Assignment, Report, Skills, Enroll
 @admin.register(Enrollment)
 class ReportAdmin(admin.ModelAdmin):
     list_display = ['student', 'is_active', 'final_mark', 'course']
+    ordering = ['course', 'student']
     list_editable = ['is_active']
     list_filter = ['is_active', 'course__title']
 
