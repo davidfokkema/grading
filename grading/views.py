@@ -108,7 +108,8 @@ def upload_report_view(request, assignment_id):
         files = request.FILES.getlist('reports')
         if form.is_valid():
             added, updated, unknown = [], [], []
-            logger.info("FILES %d: %s" % (len(files), '\t'.join([str(u) for u in files])))
+            logger.info("FILES %d: %s" %
+                        (len(files), '\t'.join([str(u) for u in files])))
             for f in files:
                 logger.info("Processing file %s" % f)
                 try:
