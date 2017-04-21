@@ -32,7 +32,7 @@ class Student(models.Model):
 
 
 class Course(models.Model):
-    title = models.CharField(max_length=80)
+    title = models.CharField(max_length=100)
     course_id = models.CharField(max_length=20)
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     students = models.ManyToManyField(Student, through='Enrollment')
