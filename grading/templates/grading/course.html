@@ -1,4 +1,9 @@
 <html>
+<head>
+<style media="screen" type="text/css">
+.inactive { color: lightgray }
+</style>
+</head>
 <body>
 <h1>{{ course.title }}</h1>
 
@@ -17,8 +22,10 @@
 
 <h2>Students</h2>
 <ol>
-{% for student in course.students.all %}
-        <li>{{ student.student_id }} - {{ student.first_name }} {{ student.last_name }}</li>
+{% for enrollment in course.enrollment_set.all %}
+{% with student=enrollment.student %}
+        <li class="{{ enrollment.is_active | yesno:'active,inactive' }}">{{ student.student_id }} - {{ student.first_name }} {{ student.last_name }}</li>
+{% endwith %}
 {% endfor %}
 </ol>
 

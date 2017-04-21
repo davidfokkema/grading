@@ -1,4 +1,9 @@
 <html>
+<head>
+<style media="screen" type="text/css">
+.inactive { color: lightgray }
+</style>
+</head>
 <body>
 <h1>{{ assignment.title }} - <a href="{% url 'course' assignment.course.pk %}">{{ assignment.course.title }}</a></h1>
 
@@ -13,7 +18,7 @@
         </thead>
         <tbody>
         {% for student in students %}
-                <tr>
+                <tr class="{{ student.is_active | yesno:'active,inactive' }}">
                         <td>{{ student.name }}</td>
                 {% if student.has_assessment %}
                         <td><a href="{{ student.assessment_url }}">Beoordeling</a></td>

@@ -36,8 +36,13 @@ class ReportView(generic.DetailView):
 
         students = []
         for student in all_students:
-            info = {'name': str(student), 'has_report': False,
-                    'has_assessment': False, 'mark': None,
+            enrollment = Enrollment.objects.get(
+                student=student, course=assignment.course)
+            info = {'name': str(student),
+                    'has_report': False,
+                    'has_assessment': False,
+                    'mark': None,
+                    'is_active': enrollment.is_active,
                     'mail_is_sent': False}
             try:
                 report = Report.objects.get(assignment=assignment,
@@ -71,8 +76,13 @@ class SkillsView(generic.DetailView):
 
         students = []
         for student in all_students:
-            info = {'name': str(student), 'has_assessment': False,
-                    'mark': None, 'mail_is_sent': False}
+            enrollment = Enrollment.objects.get(
+                student=student, course=assignment.course)
+            info = {'name': str(student),
+                    'has_assessment': False,
+                    'mark': None,
+                    'is_active': enrollment.is_active,
+                    'mail_is_sent': False}
             try:
                 skills = Skills.objects.get(assignment=assignment,
                                             student=student)
