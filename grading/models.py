@@ -20,13 +20,36 @@ class Account(models.Model):
         return '%s - %s' % (self.get_account_type_display(), self.user)
 
 
-class Course(models.Model):
-    title = models.CharField(max_length=80)
-    course_id = models.CharField(max_length=20)
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+class Student(models.Model):
+    first_name = models.CharField(max_length=20)
+    prefix = models.CharField(max_length=20, blank=True)
+    last_name = models.CharField(max_length=40)
+    student_id = models.IntegerField()
+    email = models.EmailField()
 
     def __str__(self):
-        return '%s (%s)' % (self.title, self.account)
+        return ' '.join([self.first_name, self.prefix, self.last_name])
+
+
+class Course(models.Model):
+    title = models.CharField(max_length=100)
+    course_id = models.CharField(max_length=20)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    students = models.ManyToManyField(Student, through='Enrollment')
+
+    def __str__(self):
+        return '%s' % self.title
+
+
+class Enrollment(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
+    final_mark = models.DecimalField(
+        max_digits=3, decimal_places=1, blank=True, null=True)
+
+    def __str__(self):
+        return '%s - %s' % (self.course, self.student)
 
 
 class Assignment(models.Model):
@@ -35,12 +58,12 @@ class Assignment(models.Model):
         ('expvaardigheden', "Experimentele vaardigheden"),
     ]
 
-    title = models.CharField(max_length=40)
+    title = models.CharField(max_length=80)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     assignment_type = models.CharField(max_length=20,
                                        choices=ASSIGNMENT_CHOICES)
-    mail_subject = models.CharField(max_length=100)
-    mail_body = models.TextField()
+    mail_subject = models.CharField(max_length=100, blank=True, null=True)
+    mail_body = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return '%s (%s) - %s' % (self.title,
@@ -48,24 +71,27 @@ class Assignment(models.Model):
                                  self.course)
 
 
-class Student(models.Model):
-    first_name = models.CharField(max_length=20)
-    prefix = models.CharField(max_length=20, blank=True)
-    last_name = models.CharField(max_length=40)
-    student_id = models.IntegerField()
-    email = models.EmailField()
-    courses = models.ManyToManyField(Course, blank=True)
-
-    def __str__(self):
-        return ' '.join([self.first_name, self.prefix, self.last_name])
-
-
 class Report(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    mark = models.DecimalField(max_digits=2, decimal_places=1, blank=True,
+    mark = models.DecimalField(max_digits=3, decimal_places=1, blank=True,
                                null=True)
     report = models.FileField()
+    assessment = models.FileField()
+    mail_is_sent = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('assignment', 'student')
+
+    def __str__(self):
+        return '%s - %s' % (self.assignment, self.student)
+
+
+class Skills(models.Model):
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    mark = models.DecimalField(max_digits=3, decimal_places=1, blank=True,
+                               null=True)
     assessment = models.FileField()
     mail_is_sent = models.BooleanField(default=False)
 

@@ -5,9 +5,9 @@ from django.views import generic
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 
-from .models import Course, Student, Assignment, Report
+from .models import Course, Student, Assignment, Report, Skills, Enrollment
 from .forms import UploadReportForm, UploadReportAssessmentForm
-from .blackboard import BlackBoard
+from .blackboard import BlackBoardUvA, BlackBoardVU
 from . import utils
 
 
@@ -32,12 +32,17 @@ class ReportView(generic.DetailView):
         context = super(ReportView, self).get_context_data(**kwargs)
 
         assignment = Assignment.objects.get(pk=self.kwargs['pk'])
-        all_students = Student.objects.filter(courses=assignment.course)
+        all_students = assignment.course.students.all()
 
         students = []
         for student in all_students:
-            info = {'name': str(student), 'has_report': False,
-                    'has_assessment': False, 'mark': None,
+            enrollment = Enrollment.objects.get(
+                student=student, course=assignment.course)
+            info = {'name': str(student),
+                    'has_report': False,
+                    'has_assessment': False,
+                    'mark': None,
+                    'is_active': enrollment.is_active,
                     'mail_is_sent': False}
             try:
                 report = Report.objects.get(assignment=assignment,
@@ -59,6 +64,42 @@ class ReportView(generic.DetailView):
         return context
 
 
+class SkillsView(generic.DetailView):
+    model = Assignment
+    template_name = 'grading/skills.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SkillsView, self).get_context_data(**kwargs)
+
+        assignment = Assignment.objects.get(pk=self.kwargs['pk'])
+        all_students = Student.objects.filter(course=assignment.course)
+
+        students = []
+        for student in all_students:
+            enrollment = Enrollment.objects.get(
+                student=student, course=assignment.course)
+            info = {'name': str(student),
+                    'has_assessment': False,
+                    'mark': None,
+                    'is_active': enrollment.is_active,
+                    'mail_is_sent': False}
+            try:
+                skills = Skills.objects.get(assignment=assignment,
+                                            student=student)
+            except Skills.DoesNotExist:
+                pass
+            else:
+                if skills.assessment:
+                    info['has_assessment'] = True
+                    info['assessment_url'] = skills.assessment.url
+                if skills.mail_is_sent:
+                    info['mail_is_sent'] = True
+                info['mark'] = skills.mark
+            students.append(info)
+        context['students'] = students
+        return context
+
+
 def upload_report_view(request, assignment_id):
     assignment = Assignment.objects.get(pk=assignment_id)
 
@@ -67,7 +108,8 @@ def upload_report_view(request, assignment_id):
         files = request.FILES.getlist('reports')
         if form.is_valid():
             added, updated, unknown = [], [], []
-            logger.info("FILES %d: %s" % (len(files), '\t'.join([str(u) for u in files])))
+            logger.info("FILES %d: %s" %
+                        (len(files), '\t'.join([str(u) for u in files])))
             for f in files:
                 logger.info("Processing file %s" % f)
                 try:
@@ -129,10 +171,13 @@ def upload_report_assessment_view(request, assignment_id):
 def refresh_student_list(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
 
-    url = course.account.url
     username = course.account.user
     unsafe_password = course.account.unsafe_password
-    bb = BlackBoard(url, username, unsafe_password)
+    if course.account.account_type == 'bb_uva':
+        BlackBoard = BlackBoardUvA
+    elif course.account.account_type == 'bb_vu':
+        BlackBoard = BlackBoardVU
+    bb = BlackBoard(username, unsafe_password)
     students = bb.get_student_list(course.course_id)
 
     for student in students:
@@ -147,11 +192,12 @@ def refresh_student_list(request, course_id):
                         email=student['email'])
             s.save()
 
-        if course in s.courses.all():
+        if course in s.course_set.all():
             student['status'] += '- already registered'
         else:
-            s.courses.add(course)
+            enroll = Enrollment(student=s, course=course)
             s.save()
+            enroll.save()
             student['status'] += '- now registered'
 
     return render(request, 'grading/refresh_student_list.html',

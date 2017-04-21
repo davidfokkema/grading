@@ -1,4 +1,9 @@
 <html>
+<head>
+<style media="screen" type="text/css">
+.inactive { color: lightgray }
+</style>
+</head>
 <body>
 <h1>{{ course.title }}</h1>
 
@@ -7,6 +12,8 @@
 {% for assignment in course.assignment_set.all %}
         {% if assignment.assignment_type == 'verslag' %}
         <li><a href="{% url 'report_assignment' assignment.pk %}">{{ assignment.title }} ({{ assignment.assignment_type}})</a></li>
+        {% elif assignment.assignment_type == 'expvaardigheden' %}
+        <li><a href="{% url 'skills_assignment' assignment.pk %}">{{ assignment.title }} ({{ assignment.assignment_type}})</a></li>
         {% else %}
         <li>{{ assignment.title }} ({{ assignment.assignment_type}})</li>
         {% endif %}
@@ -15,8 +22,10 @@
 
 <h2>Students</h2>
 <ol>
-{% for student in course.student_set.all %}
-        <li>{{ student.student_id }} - {{ student.first_name }} {{ student.last_name }}</li>
+{% for enrollment in course.enrollment_set.all %}
+{% with student=enrollment.student %}
+        <li class="{{ enrollment.is_active | yesno:'active,inactive' }}">{{ student.student_id }} - {{ student.first_name }} {{ student.last_name }}</li>
+{% endwith %}
 {% endfor %}
 </ol>
 

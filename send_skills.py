@@ -21,19 +21,19 @@ if __name__ == '__main__':
     mail_template = Template(assignment.mail_body)
     subject = assignment.mail_subject
 
-    for report in assignment.report_set.filter(mail_is_sent=False):
-        enrollment = Enrollment.objects.get(course=assignment.course, student=report.student)
+    for skills in assignment.skills_set.filter(mail_is_sent=False):
+        enrollment = Enrollment.objects.get(course=assignment.course,
+                                            student=skills.student)
         if enrollment.is_active:
-            print("Sending mail to %s" % report.student)
-            context = Context({'student': report.student})
+            print("Sending mail to %s" % skills.student)
+            context = Context({'student': skills.student})
             body = mail_template.render(context)
             email = EmailMessage(subject=subject, body=body,
-                                 to=[report.student.email],
+                                 to=[skills.student.email],
                                  bcc=['d.b.r.a.fokkema@uva.nl'])
-            email.attach_file(report.report.path)
-            email.attach_file(report.assessment.path)
+            email.attach_file(skills.assessment.path)
             email.send()
-            report.mail_is_sent = True
-            report.save()
+            skills.mail_is_sent = True
+            skills.save()
         else:
-            print("Not sending mail to %s as student has dropped out" % report.student)
+            print("Not sending mail to %s as student has dropped out" % skills.student)

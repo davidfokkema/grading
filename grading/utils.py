@@ -58,11 +58,11 @@ def get_sheet_id_from_url(url):
     return match.group(1)
 
 
-def get_pdf_from_sheet_url(url, sheet):
+def get_pdf_from_sheet_url(url, sheet, portrait=False):
     gid = sheet['properties']['sheetId']
     # strip off everything after the last slash
     url = re.match('.*/', url).group(0)
-    params = urlencode({'format': 'pdf', 'portrait': 'false', 'gid': gid})
+    params = urlencode({'format': 'pdf', 'portrait': portrait, 'gid': gid})
     export_url = url + 'export?' + params
     http = google_drive.get_authorized_http()
     response, content = http.request(export_url)
