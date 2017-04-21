@@ -13,7 +13,7 @@ class AuthError(Exception):
     pass
 
 
-class BlackBoard(object):
+class BlackBoardUvA(object):
 
     """Connect to BlackBoard.
 
@@ -22,19 +22,19 @@ class BlackBoard(object):
 
     """
 
+    url = "https://blackboard.uva.nl/"
     _courses_list_url = 'webapps/portal/execute/tabs/tabAction?tab_tab_group_id=_1_1&forwardUrl=detach_module%2F_4_1%2F'
     _student_list_url = 'webapps/blackboard/execute/userManager?course_id=%s&showAll=true'
 
     cookies = None
 
-    def __init__(self, url, user_id, password=None):
+    def __init__(self, user_id, password=None):
         """Initialize class.
 
         :param url: the url of the BlackBoard installation
         :param user_id: the user's id. You will be prompted for you password.
 
         """
-        self.url = url
         self.user_id = user_id
         self.requests = Requests()
         self._password = password
@@ -51,9 +51,11 @@ class BlackBoard(object):
         r, soup = self.open_page(urljoin(self.url, self._courses_list_url))
         for item in soup.find(class_='courseListing').find_all('li'):
             if not item.find(string='(not currently available)'):
-                course_id = re.search('id=([_0-9]+)', item.a['href']).group(1)
-                title = item.a.text
-                courses.append({'title': title, 'course_id': course_id})
+                match = re.search('id=([_0-9]+)', item.a['href'])
+                if match:
+                    course_id = match.group(1)
+                    title = item.a.text
+                    courses.append({'title': title, 'course_id': course_id})
         return courses
 
     def get_student_list(self, course_id):
@@ -121,6 +123,34 @@ class BlackBoard(object):
         else:
             return False
 
+class BlackBoardVU(BlackBoardUvA):
+
+    url = "https://bb.vu.nl"
+
+    def get_student_list(self, course_id):
+        """Get a list of students."""
+
+        students = []
+
+        # Make sure we are logged in since forwarding does not work very well
+        # with GET arguments
+        self.open_page(self.url)
+
+        r, soup = self.open_page(urljoin(self.url,
+                                         self._student_list_url % course_id))
+        users_table = soup.find(id='listContainer_datatable')
+        users = users_table.find('tbody').find_all('tr')
+        for user in users:
+            fields = list(user.stripped_strings)[:6]
+            _, _, first_name, last_name, email, role = fields
+            if role == 'Student':
+                student_id = re.match('([0-9]+)@student', email).group(1)
+                students.append({'first_name': first_name,
+                                 'last_name': last_name,
+                                 'email': email,
+                                 'student_id': student_id})
+        return students
+
 
 class Requests(object):
 
@@ -156,7 +186,11 @@ class Requests(object):
 
 
 if __name__ == '__main__':
-    # bb = BlackBoard('https://bb.vu.nl', 'dfa210')
-    bb = BlackBoard('https://blackboard.uva.nl/', 'dfokkem1')
+    # bb = BlackBoardUvA('dfokkem1')
+    # courses = bb.get_courses()
+    # students = bb.get_student_list('_209763_1')
+    bb = BlackBoardVU('dfa210')
     courses = bb.get_courses()
-    students = bb.get_student_list('_209763_1')
+    students = bb.get_student_list('_116079_1')
+    print(courses)
+    print(students)

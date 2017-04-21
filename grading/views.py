@@ -7,7 +7,7 @@ from django.http import HttpResponseRedirect
 
 from .models import Course, Student, Assignment, Report, Skills, Enrollment
 from .forms import UploadReportForm, UploadReportAssessmentForm
-from .blackboard import BlackBoard
+from .blackboard import BlackBoardUvA, BlackBoardVU
 from . import utils
 
 
@@ -171,10 +171,13 @@ def upload_report_assessment_view(request, assignment_id):
 def refresh_student_list(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
 
-    url = course.account.url
     username = course.account.user
     unsafe_password = course.account.unsafe_password
-    bb = BlackBoard(url, username, unsafe_password)
+    if course.account.account_type == 'bb_uva':
+        BlackBoard = BlackBoardUvA
+    elif course.account.account_type == 'bb_vu':
+        BlackBoard = BlackBoardVU
+    bb = BlackBoard(username, unsafe_password)
     students = bb.get_student_list(course.course_id)
 
     for student in students:
