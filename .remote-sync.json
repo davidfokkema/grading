@@ -1,0 +1,16 @@
+{
+  "uploadOnSave": true,
+  "useAtomicWrites": false,
+  "deleteLocal": false,
+  "hostname": "localhost",
+  "port": "2222",
+  "target": "/srv/grading/www",
+  "ignore": [
+    ".remote-sync.json",
+    ".git/**"
+  ],
+  "username": "vagrant",
+  "watch": [],
+  "transport": "scp",
+  "useAgent": true
+}

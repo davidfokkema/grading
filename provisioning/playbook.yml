@@ -10,6 +10,9 @@
     apt: upgrade=yes
     become: true
 
+  - name: use custom .bashrc
+    copy: src=bashrc dest=~/.bashrc backup=yes
+
   - name: install supervisor
     apt: name=supervisor state=present
     become: true
@@ -32,6 +35,11 @@
   - name: install miniconda
     command: creates=/opt/miniconda
              /bin/bash /usr/local/src/Miniconda3-4.2.12-Linux-x86_64.sh -b -p /opt/miniconda
+    become: true
+
+  - name: ensure miniconda is in path
+    lineinfile: dest=/etc/profile.d/path.sh create=yes mode=0644
+                regexp='miniconda' line='PATH=/opt/miniconda/bin:$PATH'
     become: true
 
   - name: ensure /srv directory exists

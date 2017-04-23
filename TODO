@@ -1,1 +1,3 @@
 - split settings.py into dev/vagrant/production parts
+- use pip module
+- use acl module if needed
