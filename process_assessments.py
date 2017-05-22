@@ -16,6 +16,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description="Process assessments at the specified URL.")
     parser.add_argument('assignment_id')
+    parser.add_argument('mark_cell')
     parser.add_argument('url')
     args = parser.parse_args()
 
@@ -46,7 +47,7 @@ if __name__ == '__main__':
                 added.append(student)
             filename = "Checklist %s %s.pdf" % (assignment.title, student)
             report.assessment.save(filename, ContentFile(pdf))
-            mark = utils.get_mark_from_sheet_url(url, sheet, 'E17')
+            mark = utils.get_mark_from_sheet_url(url, sheet, args.mark_cell)
             print(student, mark)
             report.mark = mark
             report.save()
