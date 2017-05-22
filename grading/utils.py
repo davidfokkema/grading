@@ -24,8 +24,9 @@ def get_student_from_filename(filename):
         pass
     # try to get student name, at least 5 characters, ignore leading
     # and trailing underscore
-    match = re.search('([a-zA-Z_]{5,})', filename)
+    match = re.search('([a-zA-Z_ ]{5,})', filename)
     name = match.group(1).strip('_')
+    name = name.replace(' ', '_')
     name_parts = name.split('_')
     try:
         return Student.objects.get(first_name__icontains=name_parts[0],
