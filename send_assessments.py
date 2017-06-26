@@ -30,7 +30,10 @@ if __name__ == '__main__':
             email = EmailMessage(subject=subject, body=body,
                                  to=[report.student.email],
                                  bcc=['d.b.r.a.fokkema@uva.nl'])
-            email.attach_file(report.report.path)
+            try:
+                email.attach_file(report.report.path)
+            except ValueError:
+                print("Not including report for student %s" % report.student)
             email.attach_file(report.assessment.path)
             email.send()
             report.mail_is_sent = True
